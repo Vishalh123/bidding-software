@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <br>
+            <h1 class="text-center alert alert-info">Hello, {{request.session.username}} Welcome To Home Page</h1>
+            <br>
+            <div align="right">
+                {% if request.user.is_admin %}
+                <a class="alert btn-success btn-lg btn-block" href="{% url 'add' %}">Add Product</a>
+                {% endif %}
+                <a class="alert btn-danger btn-lg btn-block" href="{% url 'logout' %}">logout</a>
+            </div>
+        </div>
+        <div class="row">
+           {% for pro in prod_obj %}
+            <div class="col-md-4 mt-5">
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="/media/{{pro.image}}" alt="Card image cap" style="height: 200px;">
+          <div class="card-body">
+            <h5 class="card-title">{{ pro.name }}</h5>
+            <p class="card-text">{{ pro.description }}</p>
+            <a href="{% url 'prod_detail' pro.id %}" class="btn btn-primary">BID</a>
+              {% if request.user.is_authenticated and request.user == pro.user %}
+              <a href="{% url 'delete_bid' pro.id %}" class="btn delete_btn" style="float:right;"><i class="fa fa-trash-o delete_btn" style="font-size:35px;color:#0d6efd;" value={{ pro.id }}></i></a>
+              {% endif %}
+          </div>
+        </div>
+                </div>
+    {% endfor %}
+            </div>
+    </div>
+
+</body>
+</html>

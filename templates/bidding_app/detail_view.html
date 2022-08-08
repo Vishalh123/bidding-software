@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <br>
+            <h1 class="text-center alert alert-info">Hello, {{request.session.username}} Welcome To Home Page</h1>
+            <br>
+            <div align="right">
+                {% if request.user.is_admin %}
+                <a class="alert btn-success btn-lg btn-block" href="{% url 'add' %}">Add Product</a>
+                {% endif %}
+                <a class="alert btn-danger btn-lg btn-block" href="{% url 'logout' %}">logout</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mt-5">
+                <img class="card-img-top" src="/media/{{prod_obj.image}}" alt="Card image cap">
+            </div>
+            <div class="col-md-6 mt-5">
+                <h5 class="card-title">Product Name: {{ prod_obj.name }}</h5>
+                <p class="card-text">Product Description: {{ prod_obj.description }}</p>
+                <p class="card-text">Max Bid Amount: {{ prod_obj.max_bid }}</p>
+                {% if not request.user.is_admin or request.user != prod_obj.user %}
+                <input type="number" name="bid" id="bid_amount" value="{{ bid_obj.bid_amount }}">
+                <div class="btn btn-primary bid_btn">BID</div>
+                {% else %}
+                <div class="btn btn-primary view_bid">View BID</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bid_grid">
+            <div class="row">
+                <div class="col-md-6">
+            <select class="form-select" aria-label="Default select example" id="bid_select">
+              <option selected>Open this select menu</option>
+              <option value="low">Low to high</option>
+                <option value="high">high to low</option>
+            </select>
+                </div>
+            </div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">User</th>
+        <th scope="col">Email</th>
+      <th scope="col">Bid Amount</th>
+    </tr>
+  </thead>
+  <tbody id="bid_result">
+    {% include 'bidding_app/bid_table.html' %}
+  </tbody>
+</table>
+
+</div>
+    </div>
+</body>
+</html>
+    <script>
+    $('.bid_btn').on('click', function(){
+        var amount = $('#bid_amount').val();
+
+        if(amount > '{{ prod_obj.max_bid }}'){
+        alert('Max bid amount not satisfied')
+        }
+        else{
+            jQuery.ajax({
+                type: 'post',
+                url: '{% url "create_bid" %}',
+                dataType: 'json',
+                data: {
+                    'amount' : amount,
+                    'prod' : '{{ prod_obj.id }}'
+                },
+                success: function(data) {
+                location.reload();
+                }
+            });
+        }
+
+    });
+
+    $('.bid_grid').hide();
+
+       $('.view_bid').on('click', function(){
+        $('.bid_grid').show();
+    });
+
+    $('#bid_select').change(function(){
+
+        jQuery.ajax({
+                type: 'post',
+                url: '{% url "bid_filter" %}',
+                dataType: 'json',
+                data: {
+                    'select_type' : $(this).val(),
+                },
+                success: function(response) {
+                console.log(response['data'])
+                    $('#bid_result').html(response['data'])
+                }
+            });
+    })
+
+</script>

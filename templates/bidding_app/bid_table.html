@@ -1,0 +1,7 @@
+  {% for us in admin_bid_obj %}
+    <tr>
+      <td>{{ us.user.username }}</td>
+        <td>{{ us.user.email }}</td>
+      <td>{{ us.bid_amount }}</td>
+    </tr>
+  {% endfor %}
